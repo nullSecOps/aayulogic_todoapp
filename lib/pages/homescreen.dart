@@ -1,6 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:todoapp/components/addButton.dart';
 import 'package:todoapp/components/appbar.dart';
+import 'package:todoapp/components/mydrawer.dart';
 import 'package:todoapp/components/todoTile.dart';
 import 'package:todoapp/pages/addtodo.dart';
 
@@ -18,17 +19,24 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // todoList
+  Future<void> checkboxChange(bool value, String id) async {
+    // print(value);
+    await FirebaseFirestore.instance
+        .collection('todos')
+        .doc(id)
+        .update({'isCompleted': value});
+  }
 
-  void checkboxChange(bool? value, int index) {
-    setState(() {
-      todoList[index][1] = !todoList[index][1];
-    });
+  Future<void> deleteData(String id) async {
+    await FirebaseFirestore.instance.collection('todos').doc(id).delete();
+    // print(res);
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        drawer: MyDrawer(),
         backgroundColor: Colors.deepPurple.shade400,
         appBar: const MyAppBar(),
         floatingActionButton: FloatingActionButton.extended(
@@ -59,19 +67,46 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(
               height: 20,
             ),
-            ListView.builder(
-              itemCount: todoList.length,
-              itemBuilder: (context, index) => TodoTile(
-                isTaskCompleted: todoList[index][1],
-                taskName: todoList[index][0],
-                onChanged: (value) => checkboxChange(value, index),
-                isDeleted: () {
-                  setState(() {
-                    todoList.remove(todoList[index]);
-                  });
-                },
-              ),
-            )
+            // snapshot.data!.docs.map((DocumentSnapshot document) {
+            StreamBuilder<QuerySnapshot>(
+                stream:
+                    FirebaseFirestore.instance.collection('todos').snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.active) {
+                    if (snapshot.hasData) {
+                      return ListView.builder(
+                        itemCount: snapshot.data!.docs.length,
+                        itemBuilder: (context, index) => TodoTile(
+                          isTaskCompleted: snapshot.data!.docs[index]
+                              ['isCompleted'],
+                          id: snapshot.data!.docs[index].id.toString(),
+                          taskName: snapshot.data!.docs[index]['todo'],
+                          onChanged: (value) => checkboxChange(
+                              value!, snapshot.data!.docs[index].id.toString()),
+                          isDeleted: () {
+                            deleteData(snapshot.data!.docs[index].id.toString())
+                                .whenComplete(() => ScaffoldMessenger.of(
+                                        context)
+                                    .showSnackBar(const SnackBar(
+                                        content:
+                                            Text('Deleted Successfully !'))));
+                          },
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text(snapshot.hasError.toString()),
+                      );
+                    }
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                    );
+                  }
+                  throw Exception();
+                })
           ],
         ));
   }

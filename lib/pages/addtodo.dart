@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:todoapp/components/appbar.dart';
 import 'package:todoapp/pages/homescreen.dart';
@@ -12,6 +13,14 @@ class AddTodo extends StatefulWidget {
 
 class _AddTodoState extends State<AddTodo> {
   final mycontroller = TextEditingController();
+  CollectionReference mytodo = FirebaseFirestore.instance.collection('todos');
+
+  Future<void> addData() async {
+    await mytodo
+        .add({'isCompleted': false, 'todo': mycontroller.text})
+        .then((value) => print("User Added $value"))
+        .catchError((error) => print(error));
+  }
 
   @override
   void initState() {
@@ -65,6 +74,7 @@ class _AddTodoState extends State<AddTodo> {
               children: [
                 ElevatedButton(
                     onPressed: () {
+                      addData();
                       setState(() {
                         List toInsert = [mycontroller.text, false];
                         todoList.insert(todoList.length, toInsert);
