@@ -96,6 +96,8 @@ class _LoginState extends State<Register> {
                                 style: TextStyle(color: Colors.grey),
                               ),
                               focusedBorder: myBorderStyle,
+                              errorBorder: myBorderStyle,
+                              focusedErrorBorder: myBorderStyle,
                               enabledBorder: myBorderStyle,
                             )),
                         const SizedBox(
@@ -119,6 +121,7 @@ class _LoginState extends State<Register> {
                                 style: TextStyle(color: Colors.grey),
                               ),
                               errorBorder: myBorderStyle,
+                              focusedErrorBorder: myBorderStyle,
                               focusedBorder: myBorderStyle,
                               enabledBorder: myBorderStyle),
                         ),

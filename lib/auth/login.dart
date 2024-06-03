@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:todoapp/extension/extension.dart';
 import 'package:todoapp/auth/register.dart';
 
@@ -82,19 +83,22 @@ class _LoginState extends State<Login> {
                             },
                             controller: email,
                             validator: (value) {
-                              if (!value!.validateEmail()) {
+                              if (value!.isEmpty) {
+                                return "please enter email";
+                              } else if (!value!.validateEmail()) {
                                 return "input a valid email";
                               }
                             },
                             decoration: InputDecoration(
-                              prefixIcon: const Icon(Icons.person),
-                              label: const Text(
-                                'Email',
-                                style: TextStyle(color: Colors.grey),
-                              ),
-                              focusedBorder: myBorderStyle,
-                              enabledBorder: myBorderStyle,
-                            )),
+                                prefixIcon: const Icon(Icons.person),
+                                label: const Text(
+                                  'Email',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                                focusedBorder: myBorderStyle,
+                                focusedErrorBorder: myBorderStyle,
+                                enabledBorder: myBorderStyle,
+                                errorBorder: myBorderStyle)),
                         const SizedBox(
                           height: 10,
                         ),
@@ -124,21 +128,35 @@ class _LoginState extends State<Login> {
                         ),
                         TextFormField(
                           // focusNode: f2,
+
                           controller: password,
                           obscureText: isNotVisible,
                           decoration: InputDecoration(
+                              suffixIcon: password.text.isEmpty
+                                  ? const Icon(FontAwesomeIcons.lock)
+                                  : const Icon(FontAwesomeIcons.unlock),
                               prefixIcon: IconButton(
                                   onPressed: () {
                                     setState(() {
                                       isNotVisible = !isNotVisible;
                                     });
                                   },
-                                  icon: const Icon(Icons.remove_red_eye)),
+                                  icon: isNotVisible
+                                      ? const Icon(
+                                          FontAwesomeIcons.eyeSlash,
+                                          size: 20,
+                                        )
+                                      : const Icon(
+                                          FontAwesomeIcons.eye,
+                                          size: 20,
+                                        )),
                               label: const Text(
                                 'password',
                                 style: TextStyle(color: Colors.grey),
                               ),
                               focusedBorder: myBorderStyle,
+                              focusedErrorBorder: myBorderStyle,
+                              errorBorder: myBorderStyle,
                               enabledBorder: myBorderStyle),
                         ),
                       ],
